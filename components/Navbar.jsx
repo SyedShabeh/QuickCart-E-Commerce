@@ -12,23 +12,23 @@ const Navbar = () => {
   const {openSignIn} = useClerk()
 
   return (
-    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-5 border-b border-gray-300 text-gray-700 font-semibold sticky top-0 z-50 backdrop-blur-lg">
+    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-5 border-b border-gray-300 text-gray-700 sticky top-0 z-50 backdrop-blur-lg">
       <h1 className="font-bold text-3xl text-blue-600">SHABEH</h1>
       <div className="flex items-center gap-4 lg:gap-8 max-md:hidden">
-        <Link href="/" className="hover:text-gray-900 transition">
+        <Link href="/" className="hover:text-blue-500 transition">
           Home
         </Link>
-        <Link href="/all-products" className="hover:text-gray-900 transition">
+        <Link href="/all-products" className="hover:text-blue-500 transition">
           Shop
         </Link>
-        <Link href="/" className="hover:text-gray-900 transition">
+        <Link href="/" className="hover:text-blue-500 transition">
           About Us
         </Link>
-        <Link href="/" className="hover:text-gray-900 transition">
+        <Link href="/" className="hover:text-blue-500 transition">
           Contact
         </Link>
 
-        {isSeller && <button onClick={() => router.push('/seller')} className="text-xs border px-4 py-1.5 rounded-full">Seller Dashboard</button>}
+        {isSeller && <button onClick={() => router.push('/seller')} className="text-xs border px-4 py-1.5 rounded-full hover:text-white hover:border-white hover:bg-blue-500">Seller Dashboard</button>}
 
       </div>
 
