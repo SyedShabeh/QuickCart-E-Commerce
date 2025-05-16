@@ -7,7 +7,7 @@ const Footer = () => {
     <footer>
       <div className="flex flex-col md:flex-row items-start justify-center px-6 md:px-16 lg:px-32 gap-10 py-14 border-b border-blue-500/30 text-gray-500">
         <div className="w-4/5">
-          <h1>SHABEH</h1>
+          <h1 className="text-blue-600 text-3xl font-bold">SHABEH</h1>
           <p className="mt-6 text-sm">
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry. Lorem Ipsum has been the industry's standard dummy text
@@ -47,7 +47,8 @@ const Footer = () => {
         </div>
       </div>
       <p className="py-4 text-center text-xs md:text-sm">
-        Copyright 2025 © All Right Reserved.
+      © 2025 All Right Reserved - Design by
+        <span className="font-bold text-blue-500"> Syed Shabeh</span>
       </p>
     </footer>
   );
