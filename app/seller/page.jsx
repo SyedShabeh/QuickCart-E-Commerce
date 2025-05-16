@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { assets } from "../../assets/assets";
 import Image from "next/image";
+import Footer from "../../components/Footer";
 
 const AddProduct = () => {
 
@@ -124,11 +125,11 @@ const AddProduct = () => {
             />
           </div>
         </div>
-        <button type="submit" className="px-8 py-2.5 bg-orange-600 text-white font-medium rounded">
+        <button type="submit" className="px-8 py-2.5 bg-blue-600 text-white font-medium rounded">
           ADD
         </button>
       </form>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 };
