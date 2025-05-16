@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { assets } from "../../assets/assets";
 import Image from "next/image";
-import Footer from "../../components/Footer";
+import Footer from "../../components/seller/Footer";
 
 const AddProduct = () => {
 

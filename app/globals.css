@@ -17,3 +17,11 @@
 ::-webkit-scrollbar {
   display: none;
 }
+
+  @keyframes fade-in {
+      from { opacity: 0; transform: translateY(100px); }
+      to { opacity: 1; transform: translateY(1); }
+  }
+  .animate-fade-in {
+      animation: fade-in 0.3s ease-out forwards;
+  }

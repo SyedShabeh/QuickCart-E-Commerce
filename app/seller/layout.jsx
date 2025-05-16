@@ -1,6 +1,5 @@
 'use client'
-import Footer from '../../components/Footer'
-import Navbar from '../../components/Navbar'
+import Navbar from '../../components/seller/Navbar'
 import Sidebar from '../../components/seller/Sidebar'
 import React from 'react'
 
