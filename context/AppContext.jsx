@@ -21,7 +21,7 @@ export const AppContextProvider = (props) => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isOrderProcessing, setIsOrderProcessing] = useState(false);
 
-  // PRODUCTS & USER DATA
+
   const fetchProductData = async () => {
     setProducts(productsDummyData);
   };
@@ -30,7 +30,6 @@ export const AppContextProvider = (props) => {
     setUserData(userDummyData);
   };
 
-  // CART FUNCTIONS (keep these the same)
   const addToCart = (itemId) => {
     let cartData = structuredClone(cartItems);
     if (cartData[itemId]) {
@@ -70,7 +69,6 @@ export const AppContextProvider = (props) => {
     return Math.floor(totalAmount * 100) / 100;
   };
 
-  // ADDRESS MANAGEMENT - UPDATED
   const addAddress = (newAddress) => {
     const updated = [newAddress, ...savedAddresses];
     setSavedAddresses(updated);
@@ -88,7 +86,7 @@ export const AppContextProvider = (props) => {
     return false;
   };
 
-  // ORDER MANAGEMENT - UPDATED
+
   const placeOrder = async () => {
     if (!selectedAddress) {
       throw new Error("Please select an address");
@@ -97,7 +95,6 @@ export const AppContextProvider = (props) => {
     setIsOrderProcessing(true);
     
     try {
-      // Create order items array
       const orderItems = Object.keys(cartItems).map(itemId => {
         const product = products.find(p => p._id === itemId);
         return {
@@ -106,13 +103,12 @@ export const AppContextProvider = (props) => {
         };
       });
 
-      // Calculate order total
       const subtotal = getCartAmount();
-      const shippingFee = 5; // Fixed shipping fee
+      const shippingFee = 5;
       const tax = Math.round(subtotal * 0.05 * 100) / 100;
       const totalAmount = (subtotal + shippingFee + tax).toFixed(2);
 
-      // Create new order object
+
       const newOrder = {
         id: `order-${Date.now()}`,
         items: orderItems,
@@ -123,15 +119,12 @@ export const AppContextProvider = (props) => {
         paymentMethod: "COD"
       };
 
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Update orders
       const updatedOrders = [newOrder, ...userOrders];
       setUserOrders(updatedOrders);
       localStorage.setItem("userOrders", JSON.stringify(updatedOrders));
       
-      // Clear cart
       setCartItems({});
       localStorage.setItem("cartItems", JSON.stringify({}));
       
@@ -141,10 +134,9 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  // LOAD FROM LOCALSTORAGE - UPDATED
   useEffect(() => {
     const initializeData = async () => {
-      // Load cart items
+
       const storedCart = localStorage.getItem("cartItems");
       if (storedCart) {
         try {
@@ -154,21 +146,20 @@ export const AppContextProvider = (props) => {
         }
       }
 
-      // Load addresses
+
       const storedAddresses = localStorage.getItem("savedAddresses");
       if (storedAddresses) {
         try {
           const addresses = JSON.parse(storedAddresses);
           setSavedAddresses(addresses);
           if (addresses.length > 0) {
-            setSelectedAddress(addresses[0]); // Select first address by default
+            setSelectedAddress(addresses[0]); 
           }
         } catch (err) {
           console.error("Failed to parse savedAddresses", err);
         }
       }
 
-      // Load orders
       const storedOrders = localStorage.getItem("userOrders");
       if (storedOrders) {
         try {
@@ -183,7 +174,6 @@ export const AppContextProvider = (props) => {
         localStorage.setItem("userOrders", JSON.stringify(orderDummyData || []));
       }
 
-      // Fetch other data
       fetchProductData();
       fetchUserData();
     };
@@ -191,12 +181,11 @@ export const AppContextProvider = (props) => {
     initializeData();
   }, []);
 
-  // Save cart items when they change
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Calculate cart summary
+
   const calculateCartSummary = () => {
     const subtotal = getCartAmount();
     const shipping = subtotal > 0 ? 5 : 0;
