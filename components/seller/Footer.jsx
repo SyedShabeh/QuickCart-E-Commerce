@@ -12,7 +12,7 @@ const Footer = () => {
           Copyright 2025 © All Right Reserved.
         </p>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 gap-md-2 mt-2">
         <a href="#">
           <Image src={assets.facebook_icon} alt="facebook_icon" />
         </a>

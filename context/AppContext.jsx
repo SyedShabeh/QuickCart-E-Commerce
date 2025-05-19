@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { createContext, useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -21,15 +21,40 @@ export const AppContextProvider = (props) => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isOrderProcessing, setIsOrderProcessing] = useState(false);
 
-
+  // PRODUCTS & USER DATA
   const fetchProductData = async () => {
-    setProducts(productsDummyData);
+    const storedProducts = localStorage.getItem("products");
+    if (storedProducts) {
+      try {
+        setProducts(JSON.parse(storedProducts));
+      } catch (err) {
+        console.error("Failed to parse products", err);
+        setProducts(productsDummyData);
+        localStorage.setItem("products", JSON.stringify(productsDummyData));
+      }
+    } else {
+      setProducts(productsDummyData);
+      localStorage.setItem("products", JSON.stringify(productsDummyData));
+    }
+  };
+
+  const addProduct = (newProduct) => {
+    const updatedProducts = [...products, newProduct];
+    setProducts(updatedProducts);
+    localStorage.setItem("products", JSON.stringify(updatedProducts));
+  };
+
+  const deleteProduct = (productId) => {
+    const updatedProducts = products.filter((product) => product._id !== productId);
+    setProducts(updatedProducts);
+    localStorage.setItem("products", JSON.stringify(updatedProducts));
   };
 
   const fetchUserData = async () => {
     setUserData(userDummyData);
   };
 
+  // CART FUNCTIONS
   const addToCart = (itemId) => {
     let cartData = structuredClone(cartItems);
     if (cartData[itemId]) {
@@ -69,16 +94,17 @@ export const AppContextProvider = (props) => {
     return Math.floor(totalAmount * 100) / 100;
   };
 
+  // ADDRESS MANAGEMENT
   const addAddress = (newAddress) => {
     const updated = [newAddress, ...savedAddresses];
     setSavedAddresses(updated);
-    setSelectedAddress(newAddress); // Auto-select the new address
+    setSelectedAddress(newAddress);
     localStorage.setItem("savedAddresses", JSON.stringify(updated));
     return updated;
   };
 
   const selectAddress = (addressId) => {
-    const address = savedAddresses.find(addr => addr.id === addressId);
+    const address = savedAddresses.find((addr) => addr.id === addressId);
     if (address) {
       setSelectedAddress(address);
       return true;
@@ -86,20 +112,20 @@ export const AppContextProvider = (props) => {
     return false;
   };
 
-
+  // ORDER MANAGEMENT
   const placeOrder = async () => {
     if (!selectedAddress) {
       throw new Error("Please select an address");
     }
 
     setIsOrderProcessing(true);
-    
+
     try {
-      const orderItems = Object.keys(cartItems).map(itemId => {
-        const product = products.find(p => p._id === itemId);
+      const orderItems = Object.keys(cartItems).map((itemId) => {
+        const product = products.find((p) => p._id === itemId);
         return {
-          product: product,
-          quantity: cartItems[itemId]
+          product,
+          quantity: cartItems[itemId],
         };
       });
 
@@ -108,7 +134,6 @@ export const AppContextProvider = (props) => {
       const tax = Math.round(subtotal * 0.05 * 100) / 100;
       const totalAmount = (subtotal + shippingFee + tax).toFixed(2);
 
-
       const newOrder = {
         id: `order-${Date.now()}`,
         items: orderItems,
@@ -116,27 +141,27 @@ export const AppContextProvider = (props) => {
         date: new Date().toISOString(),
         address: selectedAddress,
         status: "Pending",
-        paymentMethod: "COD"
+        paymentMethod: "COD",
       };
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const updatedOrders = [newOrder, ...userOrders];
       setUserOrders(updatedOrders);
       localStorage.setItem("userOrders", JSON.stringify(updatedOrders));
-      
+
       setCartItems({});
       localStorage.setItem("cartItems", JSON.stringify({}));
-      
+
       return newOrder;
     } finally {
       setIsOrderProcessing(false);
     }
   };
 
+  // LOAD FROM LOCALSTORAGE
   useEffect(() => {
     const initializeData = async () => {
-
       const storedCart = localStorage.getItem("cartItems");
       if (storedCart) {
         try {
@@ -146,14 +171,13 @@ export const AppContextProvider = (props) => {
         }
       }
 
-
       const storedAddresses = localStorage.getItem("savedAddresses");
       if (storedAddresses) {
         try {
           const addresses = JSON.parse(storedAddresses);
           setSavedAddresses(addresses);
           if (addresses.length > 0) {
-            setSelectedAddress(addresses[0]); 
+            setSelectedAddress(addresses[0]);
           }
         } catch (err) {
           console.error("Failed to parse savedAddresses", err);
@@ -174,8 +198,8 @@ export const AppContextProvider = (props) => {
         localStorage.setItem("userOrders", JSON.stringify(orderDummyData || []));
       }
 
-      fetchProductData();
-      fetchUserData();
+      await fetchProductData();
+      await fetchUserData();
     };
 
     initializeData();
@@ -185,18 +209,17 @@ export const AppContextProvider = (props) => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
-
   const calculateCartSummary = () => {
     const subtotal = getCartAmount();
     const shipping = subtotal > 0 ? 5 : 0;
     const tax = Math.round(subtotal * 0.05 * 100) / 100;
     const total = subtotal + shipping + tax;
-    
+
     return {
       subtotal,
       shipping,
       tax,
-      total
+      total,
     };
   };
 
@@ -210,6 +233,8 @@ export const AppContextProvider = (props) => {
     fetchUserData,
     products,
     fetchProductData,
+    addProduct,
+    deleteProduct,
     cartItems,
     setCartItems,
     addToCart,
@@ -223,7 +248,7 @@ export const AppContextProvider = (props) => {
     placeOrder,
     userOrders,
     calculateCartSummary,
-    isOrderProcessing
+    isOrderProcessing,
   };
 
   return <AppContext.Provider value={value}>{props.children}</AppContext.Provider>;
