@@ -231,4 +231,4 @@ const AddressPage = () => {
   );
 };
 
-export default Address;
+export default AddressPage;
