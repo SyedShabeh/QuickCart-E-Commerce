@@ -20,7 +20,7 @@ export const AppContextProvider = (props) => {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [userOrders, setUserOrders] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const [addressRedirectSource, setAddressRedirectSource] = useState(''); // Track where to return after adding address
+  const [isOrderProcessing, setIsOrderProcessing] = useState(false);
 
   // PRODUCTS & USER DATA
   const fetchProductData = async () => {
@@ -31,7 +31,7 @@ export const AppContextProvider = (props) => {
     setUserData(userDummyData);
   };
 
-  // CART
+  // CART FUNCTIONS (keep these the same)
   const addToCart = (itemId) => {
     let cartData = structuredClone(cartItems);
     if (cartData[itemId]) {
@@ -71,146 +71,137 @@ export const AppContextProvider = (props) => {
     return Math.floor(totalAmount * 100) / 100;
   };
 
-  // ADDRESS MANAGEMENT
+  // ADDRESS MANAGEMENT - UPDATED
   const addAddress = (newAddress) => {
     const updated = [newAddress, ...savedAddresses];
     setSavedAddresses(updated);
-    setSelectedAddress(newAddress); // Automatically select the new address
+    setSelectedAddress(newAddress); // Auto-select the new address
     localStorage.setItem("savedAddresses", JSON.stringify(updated));
-    localStorage.setItem("selectedAddressIndex", "0"); // Save the index of the selected address
-    
-    // Navigate back to the source page (if specified)
-    if (addressRedirectSource) {
-      router.push(addressRedirectSource);
-      setAddressRedirectSource('');
-    } else {
-      router.push('/cart'); // Default redirect to cart
+    return updated;
+  };
+
+  const selectAddress = (addressId) => {
+    const address = savedAddresses.find(addr => addr.id === addressId);
+    if (address) {
+      setSelectedAddress(address);
+      return true;
     }
+    return false;
   };
 
-  const selectAddress = (addressIndex) => {
-    if (addressIndex !== null && addressIndex >= 0 && addressIndex < savedAddresses.length) {
-      setSelectedAddress(savedAddresses[addressIndex]);
-      localStorage.setItem("selectedAddressIndex", addressIndex.toString());
-    } else {
-      setSelectedAddress(null);
-      localStorage.removeItem("selectedAddressIndex");
-    }
-  };
-
-  // Navigate to the address page and remember where to return
-  const goToAddAddress = (returnPath = '/cart') => {
-    setAddressRedirectSource(returnPath);
-    router.push('/address');
-  };
-
-  // ORDER MANAGEMENT
-  const placeOrder = () => {
+  // ORDER MANAGEMENT - UPDATED
+  const placeOrder = async () => {
     if (!selectedAddress) {
-      return false; // Cannot place order without address
+      throw new Error("Please select an address");
     }
 
-    // Create order items array
-    const orderItems = Object.keys(cartItems).map(itemId => {
-      const product = products.find(p => p._id === itemId);
-      return {
-        product: product,
-        quantity: cartItems[itemId]
+    setIsOrderProcessing(true);
+    
+    try {
+      // Create order items array
+      const orderItems = Object.keys(cartItems).map(itemId => {
+        const product = products.find(p => p._id === itemId);
+        return {
+          product: product,
+          quantity: cartItems[itemId]
+        };
+      });
+
+      // Calculate order total
+      const subtotal = getCartAmount();
+      const shippingFee = 5; // Fixed shipping fee
+      const tax = Math.round(subtotal * 0.05 * 100) / 100;
+      const totalAmount = (subtotal + shippingFee + tax).toFixed(2);
+
+      // Create new order object
+      const newOrder = {
+        id: `order-${Date.now()}`,
+        items: orderItems,
+        amount: totalAmount,
+        date: new Date().toISOString(),
+        address: selectedAddress,
+        status: "Pending",
+        paymentMethod: "COD"
       };
-    });
 
-    // Calculate additional costs
-    const subtotal = getCartAmount();
-    const shippingFee = 5; // Fixed shipping fee
-    const tax = Math.round(subtotal * 0.05 * 100) / 100; // 5% tax, rounded to 2 decimal places
-    const totalAmount = (subtotal + shippingFee + tax).toFixed(2);
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Create new order object
-    const newOrder = {
-      id: `order-${Date.now()}`,
-      items: orderItems,
-      amount: totalAmount,
-      date: new Date().toISOString(),
-      address: selectedAddress,
-      status: "Pending",
-      paymentMethod: "COD"
-    };
-
-    // Add to orders
-    const updatedOrders = [newOrder, ...userOrders];
-    setUserOrders(updatedOrders);
-    localStorage.setItem("userOrders", JSON.stringify(updatedOrders));
-    
-    // Clear cart
-    setCartItems({});
-    localStorage.setItem("cartItems", JSON.stringify({}));
-    
-    // Navigate to orders page
-    router.push('/my-orders');
-    return true;
+      // Update orders
+      const updatedOrders = [newOrder, ...userOrders];
+      setUserOrders(updatedOrders);
+      localStorage.setItem("userOrders", JSON.stringify(updatedOrders));
+      
+      // Clear cart
+      setCartItems({});
+      localStorage.setItem("cartItems", JSON.stringify({}));
+      
+      return newOrder;
+    } finally {
+      setIsOrderProcessing(false);
+    }
   };
 
-  // LOAD FROM LOCALSTORAGE
+  // LOAD FROM LOCALSTORAGE - UPDATED
   useEffect(() => {
-    const storedCart = localStorage.getItem("cartItems");
-    if (storedCart) {
-      try {
-        setCartItems(JSON.parse(storedCart));
-      } catch (err) {
-        console.error("Failed to parse cartItems from localStorage", err);
-      }
-    }
-
-    const storedAddresses = localStorage.getItem("savedAddresses");
-    if (storedAddresses) {
-      try {
-        const addresses = JSON.parse(storedAddresses);
-        setSavedAddresses(addresses);
-        
-        // Load selected address if available
-        const storedSelectedAddressIndex = localStorage.getItem("selectedAddressIndex");
-        if (storedSelectedAddressIndex !== null) {
-          const index = parseInt(storedSelectedAddressIndex);
-          if (index >= 0 && index < addresses.length) {
-            setSelectedAddress(addresses[index]);
-          }
+    const initializeData = async () => {
+      // Load cart items
+      const storedCart = localStorage.getItem("cartItems");
+      if (storedCart) {
+        try {
+          setCartItems(JSON.parse(storedCart));
+        } catch (err) {
+          console.error("Failed to parse cartItems", err);
         }
-      } catch (err) {
-        console.error("Failed to parse savedAddresses from localStorage", err);
       }
-    }
 
-    const storedOrders = localStorage.getItem("userOrders");
-    if (storedOrders) {
-      try {
-        setUserOrders(JSON.parse(storedOrders));
-      } catch (err) {
-        console.error("Failed to parse userOrders from localStorage", err);
-        // Initialize with dummy data if parsing fails
+      // Load addresses
+      const storedAddresses = localStorage.getItem("savedAddresses");
+      if (storedAddresses) {
+        try {
+          const addresses = JSON.parse(storedAddresses);
+          setSavedAddresses(addresses);
+          if (addresses.length > 0) {
+            setSelectedAddress(addresses[0]); // Select first address by default
+          }
+        } catch (err) {
+          console.error("Failed to parse savedAddresses", err);
+        }
+      }
+
+      // Load orders
+      const storedOrders = localStorage.getItem("userOrders");
+      if (storedOrders) {
+        try {
+          setUserOrders(JSON.parse(storedOrders));
+        } catch (err) {
+          console.error("Failed to parse userOrders", err);
+          setUserOrders(orderDummyData || []);
+          localStorage.setItem("userOrders", JSON.stringify(orderDummyData || []));
+        }
+      } else {
         setUserOrders(orderDummyData || []);
         localStorage.setItem("userOrders", JSON.stringify(orderDummyData || []));
       }
-    } else {
-      // Initialize with dummy data if no orders exist
-      setUserOrders(orderDummyData || []);
-      localStorage.setItem("userOrders", JSON.stringify(orderDummyData || []));
-    }
+
+      // Fetch other data
+      fetchProductData();
+      fetchUserData();
+    };
+
+    initializeData();
   }, []);
 
+  // Save cart items when they change
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  useEffect(() => {
-    fetchProductData();
-    fetchUserData();
-  }, []);
-
-  // Calculate shipping, tax, and totals for cart
+  // Calculate cart summary
   const calculateCartSummary = () => {
     const subtotal = getCartAmount();
-    const shipping = subtotal > 0 ? 5 : 0; // $5 shipping, free if cart is empty
-    const tax = Math.round(subtotal * 0.05 * 100) / 100; // 5% tax
+    const shipping = subtotal > 0 ? 5 : 0;
+    const tax = Math.round(subtotal * 0.05 * 100) / 100;
     const total = subtotal + shipping + tax;
     
     return {
@@ -241,12 +232,10 @@ export const AppContextProvider = (props) => {
     addAddress,
     selectAddress,
     selectedAddress,
-    goToAddAddress,
-    addressRedirectSource,
-    setAddressRedirectSource,
     placeOrder,
     userOrders,
-    calculateCartSummary
+    calculateCartSummary,
+    isOrderProcessing
   };
 
   return <AppContext.Provider value={value}>{props.children}</AppContext.Provider>;
