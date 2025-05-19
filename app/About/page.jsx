@@ -27,7 +27,7 @@ export default function About() {
       <Navbar />
 
       <main className="bg-white">
-        {/* Hero Section */}
+
         <section className="relative bg-gray-100 py-20">
           <div className="container mx-auto px-6 text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Our Story</h1>
@@ -37,10 +37,10 @@ export default function About() {
           </div>
         </section>
 
-        {/* About Content */}
+
         <section className="py-16">
           <div className="container mx-auto px-6">
-            {/* Tab Navigation */}
+
             <div className="flex flex-wrap justify-center mb-12 border-b border-gray-200">
               <button
                 onClick={() => setActiveTab('mission')}
@@ -68,7 +68,7 @@ export default function About() {
               </button>
             </div>
 
-            {/* Tab Content */}
+
             <div className="max-w-5xl mx-auto">
               {activeTab === 'mission' && (
                 <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -170,7 +170,7 @@ export default function About() {
   <div>
     <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Meet Our Team</h2>
     <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8">
-      {/* Team Member 1 */}
+
       <div className="text-center">
         <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-200">
           <Image
@@ -185,7 +185,6 @@ export default function About() {
         <p className="text-blue-600">Founder & CEO</p>
       </div>
 
-      {/* Team Member 2 */}
       <div className="text-center">
         <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-200">
           <Image
@@ -200,7 +199,6 @@ export default function About() {
         <p className="text-blue-600">Head of Product</p>
       </div>
 
-      {/* Team Member 3 */}
       <div className="text-center">
         <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-200">
           <Image
@@ -215,7 +213,6 @@ export default function About() {
         <p className="text-blue-600">Tech Lead</p>
       </div>
 
-      {/* Team Member 4 */}
       <div className="text-center">
         <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-200">
           <Image
@@ -236,7 +233,6 @@ export default function About() {
           </div>
         </section>
 
-        {/* Stats Section */}
         <section className="bg-blue-600 text-white py-16">
           <div className="container mx-auto px-6">
             <div className="grid md:grid-cols-4 gap-8 text-center">
@@ -260,7 +256,6 @@ export default function About() {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-6 text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Ready to Shop With Us?</h2>

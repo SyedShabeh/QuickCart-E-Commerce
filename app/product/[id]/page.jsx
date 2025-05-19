@@ -14,12 +14,12 @@ const Product = () => {
     const { products, router, addToCart } = useAppContext();
     const [mainImage, setMainImage] = useState(null);
     const [productData, setProductData] = useState(null);
-    const [showAlert, setShowAlert] = useState(false); // Moved inside the component
+    const [showAlert, setShowAlert] = useState(false); 
 
-    // Simple alert trigger
+
     const showAlertMessage = () => {
         setShowAlert(true);
-        setTimeout(() => setShowAlert(false), 3000); // Auto-hide after 3 seconds
+        setTimeout(() => setShowAlert(false), 3000); 
     };
 
     const fetchProductData = async () => {
@@ -167,5 +167,3 @@ const Product = () => {
 };
 
 export default Product;
-
-// Add this to your global CSS or in a style tag

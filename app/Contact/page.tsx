@@ -40,10 +40,8 @@ export default function ContactPage() {
         if (firstName && lastName && email && message) {
             showAlertMessage();
 
-            // Optional: submit to backend here
             console.log(formData);
 
-            // Clear form
             setFormData({
                 firstName: "",
                 lastName: "",
@@ -52,7 +50,7 @@ export default function ContactPage() {
                 message: ""
             });
         } else {
-            showErrorMessage(); // show red error alert
+            showErrorMessage(); 
         }
     };
 
@@ -63,7 +61,6 @@ export default function ContactPage() {
             <div className="min-h-screen bg-white text-gray-800 px-6 pt-28">
                 <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-start">
 
-                    {/* Left Section */}
                     <div>
                         <h1 className="text-3xl font-bold mb-4">Contact Us</h1>
                         <p className="mb-6">
@@ -89,7 +86,6 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    {/* Right Section (Form) */}
                     <form
                         className="bg-white rounded-lg shadow-md p-6 space-y-6 w-full"
                         onSubmit={handleSubmit}
