@@ -1,112 +1,234 @@
-'use client';
-
+'use client'
+import React, { useState } from "react";
 import { assets } from "../../assets/assets";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
 import Image from "next/image";
-import { useState } from "react";
-import { useAppContext } from "../../context/AppContext"; // ✅ import context
-import { useRouter } from "next/navigation"; // ✅ import router
+import Navbar from "../../components/Navbar";
+import { useAppContext } from "../../context/AppContext";
 
-const AddAddress = () => {
-  const router = useRouter();
-  const { addAddress } = useAppContext(); // ✅ use addAddress from context
+const AddressPage = () => {
+  const { 
+    savedAddresses, 
+    addAddress, 
+    selectAddress, 
+    selectedAddress,
+    addressRedirectSource,
+    router
+  } = useAppContext();
 
-  const [address, setAddress] = useState({
-    fullName: '',
-    phoneNumber: '',
-    pincode: '',
-    area: '',
-    city: '',
-    state: '',
+  const [addressForm, setAddressForm] = useState({
+    fullName: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    phone: ""
   });
 
-  const onSubmitHandler = async (e) => {
+  // Handle address form input changes
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddressForm({
+      ...addressForm,
+      [name]: value
+    });
+  };
+
+  // Save new address
+  const handleSaveAddress = (e) => {
     e.preventDefault();
+    addAddress(addressForm);
+    // The redirect will be handled in the addAddress function in context
+  };
 
-    // ✅ Call context function to save
-    addAddress(address);
+  // Go back to previous page
+  const handleGoBack = () => {
+    if (addressRedirectSource) {
+      router.push(addressRedirectSource);
+    } else {
+      router.push('/cart');
+    }
+  };
 
-    // ✅ Redirect to cart
-    router.push("/cart");
+  // Use an existing address and return to previous page
+  const useExistingAddress = (index) => {
+    selectAddress(index);
+    handleGoBack();
   };
 
   return (
     <>
       <Navbar />
-      <div className="px-6 md:px-16 lg:px-32 py-16 flex flex-col md:flex-row justify-between">
-        <form onSubmit={onSubmitHandler} className="w-full">
-          <p className="text-2xl md:text-3xl text-gray-500">
-            Add Shipping <span className="font-semibold text-blue-600">Address</span>
-          </p>
-          <div className="space-y-3 max-w-sm mt-10">
-            <input
-              className="px-2 py-2.5 focus:border-blue-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
-              type="text"
-              placeholder="Full name"
-              onChange={(e) => setAddress({ ...address, fullName: e.target.value })}
-              value={address.fullName}
-              required
-            />
-            <input
-              className="px-2 py-2.5 focus:border-blue-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
-              type="text"
-              placeholder="Phone number"
-              onChange={(e) => setAddress({ ...address, phoneNumber: e.target.value })}
-              value={address.phoneNumber}
-              required
-            />
-            <input
-              className="px-2 py-2.5 focus:border-blue-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
-              type="text"
-              placeholder="Pin code"
-              onChange={(e) => setAddress({ ...address, pincode: e.target.value })}
-              value={address.pincode}
-              required
-            />
-            <textarea
-              className="px-2 py-2.5 focus:border-blue-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500 resize-none"
-              rows={4}
-              placeholder="Address (Area and Street)"
-              onChange={(e) => setAddress({ ...address, area: e.target.value })}
-              value={address.area}
-              required
-            ></textarea>
-            <div className="flex space-x-3">
-              <input
-                className="px-2 py-2.5 focus:border-blue-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
-                type="text"
-                placeholder="City/District/Town"
-                onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                value={address.city}
-                required
+      <div className="container mx-auto px-6 md:px-16 lg:px-32 pt-10 mb-20">
+        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center mb-6">
+            <button 
+              onClick={handleGoBack}
+              className="flex items-center text-blue-600 hover:underline"
+            >
+              <Image
+                src={assets.arrow_right_icon_colored}
+                alt="back"
+                className="transform rotate-180 mr-2"
               />
-              <input
-                className="px-2 py-2.5 focus:border-blue-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
-                type="text"
-                placeholder="State"
-                onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                value={address.state}
+              <span>Back to Cart</span>
+            </button>
+          </div>
+          
+          <h1 className="text-2xl font-medium text-gray-800 mb-6">Add New Address</h1>
+          
+          <form onSubmit={handleSaveAddress} className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  placeholder="Enter your full name"
+                  value={addressForm.fullName}
+                  onChange={handleAddressChange}
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter your phone number"
+                  value={addressForm.phone}
+                  onChange={handleAddressChange}
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">
+                Street Address
+              </label>
+              <textarea
+                id="street"
+                name="street"
+                placeholder="Enter your street address"
+                value={addressForm.street}
+                onChange={handleAddressChange}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 required
+                rows={2}
               />
             </div>
-          </div>
-          <button
-            type="submit"
-            className="max-w-sm w-full mt-6 bg-blue-600 text-white py-3 hover:bg-blue-700 uppercase"
-          >
-            Save address
-          </button>
-        </form>
-        <Image
-          className="md:mr-16 mt-16 md:mt-0"
-          src={assets.my_location_image}
-          alt="my_location_image"
-        />
+            
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                  City
+                </label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  placeholder="City"
+                  value={addressForm.city}
+                  onChange={handleAddressChange}
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                  State
+                </label>
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  placeholder="State"
+                  value={addressForm.state}
+                  onChange={handleAddressChange}
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  Zip Code
+                </label>
+                <input
+                  type="text"
+                  id="zipCode"
+                  name="zipCode"
+                  placeholder="Zip Code"
+                  value={addressForm.zipCode}
+                  onChange={handleAddressChange}
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end mt-6">
+              <button 
+                type="button"
+                onClick={handleGoBack}
+                className="px-6 py-2 mr-4 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Save Address
+              </button>
+            </div>
+          </form>
+          
+          {/* Saved Addresses Section */}
+          {savedAddresses.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-xl font-medium text-gray-800 mb-4">Saved Addresses</h2>
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {savedAddresses.map((address, index) => (
+                  <div 
+                    key={index}
+                    className={`p-4 border rounded-md ${
+                      selectedAddress === address ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium">{address.fullName}</p>
+                        <p className="text-sm text-gray-600">{address.street}</p>
+                        <p className="text-sm text-gray-600">{`${address.city}, ${address.state} - ${address.zipCode}`}</p>
+                        <p className="text-sm text-gray-600">{address.phone}</p>
+                      </div>
+                      <button 
+                        onClick={() => useExistingAddress(index)}
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        Use this address
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-      <Footer />
     </>
   );
 };
 
-export default AddAddress;
+export default Address;
